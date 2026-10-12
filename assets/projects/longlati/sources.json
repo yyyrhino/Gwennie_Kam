@@ -1,0 +1,52 @@
+{
+  "article": {
+    "title": "Longlati | 新收藏委员会公布",
+    "publisher": "经纬艺术中心",
+    "published": "2026-08-15",
+    "url": "https://mp.weixin.qq.com/s/nJrgfVxS4IXQ1GXpNZcXXA",
+    "retrieved": "2026-10-12"
+  },
+  "assets": [
+    {
+      "file": "longlati-mark.png",
+      "articleImageIndex": 1,
+      "width": 1080,
+      "height": 511,
+      "role": "Longlati 经纬艺术中心标识；黑色图形和透明背景",
+      "source": "https://mmbiz.qpic.cn/sz_mmbiz_png/wovohd7agdgn5bjU36NQGzsjv5ma9Zcdc5SnC8FNPI3W8yW0WNFVERhhbbKiciaXsQWGUXZOHlGxsneU3Fw6xzoQ/640?wx_fmt=png&from=appmsg",
+      "edited": false
+    },
+    {
+      "file": "collection-works.jpg",
+      "articleImageIndex": 2,
+      "width": 1280,
+      "height": 1807,
+      "role": "原公告所用藏品现场照片；适合作为项目封面和详情主图",
+      "source": "https://mmbiz.qpic.cn/sz_mmbiz_jpg/Zy0f8Af93eJ0Pdav2A76B6JkHE24FzCrKWPoSxvm0efNLwMKGy00efZqtO5JSzia9QtSWRYojy3mpricw5bJtKAs708rjkokEk2IrlbGktTEQ/0?wx_fmt=jpeg&from=appmsg",
+      "sourceAttribute": "data-croporisrc",
+      "captionZh": "左：娜布其，《空间外的风景 No. 5》，2015年，不锈钢烤漆，220 × 156 × 18厘米；中：梁远苇，《2017.29》，2023年，亚麻布上油画，250 × 200厘米；右：胡晓媛，《Carpel III》，2025年，大理石、紫檀木、绡（生丝）、墨、钢丝、铁丝、线，116.5 × 230 × 62厘米。",
+      "captionEn": "Left: Nabuqi, A View Beyond Space No. 5, 2015, coloured stainless steel, 220 × 156 × 18 cm. Centre: Yuanwei Liang, 2017.29, 2023, oil on linen, 250 × 200 cm. Right: Xiaoyuan Hu, Carpel III, 2025, marble, rosewood, Xiao (raw silk), ink, steel wire, iron wire, thread, 116.5 × 230 × 62 cm.",
+      "attributionNote": "These are works by the three named artists, not artworks by Gwendoline Kam. The source article does not name a photographer.",
+      "edited": false
+    },
+    {
+      "file": "gwendoline-kam-portrait.png",
+      "articleImageIndex": 3,
+      "width": 1182,
+      "height": 1182,
+      "role": "金佐宁圆形肖像；图像原本包含透明圆形边缘",
+      "source": "https://mmbiz.qpic.cn/mmbiz_png/Zy0f8Af93eJ6CKLyG1s6Zsk7LorLAIXZlL5AJVupiaPnWluxpaOUuzjOPIG2ZwbxHlgftTjLKfd8Q0pRZvfOnPcNUenlgcRgBk2mzLvCVf8w/0?wx_fmt=png&from=appmsg",
+      "sourceAttribute": "data-croporisrc",
+      "captionZh": "金佐宁，策展人、艺术家、音乐人类学者。",
+      "captionEn": "Gwendoline Cho-ning Kam, curator, artist and ethnomusicologist.",
+      "edited": false
+    }
+  ],
+  "excludedArticleImages": [
+    { "index": 4, "role": "梁琛肖像", "downloaded": false },
+    { "index": 5, "role": "鲁钰肖像", "downloaded": false },
+    { "index": 6, "role": "夏天肖像", "downloaded": false },
+    { "index": 7, "role": "预约观展与小程序QR卡", "retained": false },
+    { "index": 8, "role": "机构介绍与联系QR卡", "retained": false }
+  ]
+}

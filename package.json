@@ -1,0 +1,7 @@
+{
+  "name": "gwendoline-kam-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone copy of the original Gwendoline Kam Readymag portfolio",
+  "scripts": { "start": "node scripts/serve.cjs", "build": "node scripts/prepare-sites.cjs" }
+}
