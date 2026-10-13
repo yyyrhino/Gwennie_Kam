@@ -43,7 +43,10 @@
     let hovering = false;
     let focused = false;
     let movingFocus = false;
-    let userPaused = false;
+    let controlRect = null;
+    let controlBoundsDirty = true;
+    let lastPointer = null;
+    let controlRefresh = 0;
     let gesture = null;
     let suppressClickUntil = 0;
     let wheelTotal = 0;
@@ -87,7 +90,7 @@
         clearTimeout(resumeTimer);
         resumeTimer = setTimeout(syncAutoplay, Math.ceil(holdRemaining));
       }
-      const paused = hovering || focused || userPaused || motion.matches || doc.hidden || !!gesture || holdRemaining > 0;
+      const paused = hovering || focused || motion.matches || doc.hidden || !!gesture || holdRemaining > 0;
       frame.dataset.autoplay = paused ? 'paused' : 'playing';
       if (paused) { autoplay.pause(); return; }
       if (manual) {
@@ -128,29 +131,41 @@
 
     button('cover-previous', '上一张图片 / Previous image', '<path d="m14 5-7 7 7 7"/>', () => goTo(nextIndex(-1)));
     button('cover-next', '下一张图片 / Next image', '<path d="m10 5 7 7-7 7"/>', () => goTo(nextIndex(1)));
-    const rotation = button('cover-rotation', '暂停自动播放 / Pause autoplay',
-      '<path class="pause-icon" d="M9 5v14M15 5v14"/><path class="play-icon" d="m9 5 10 7-10 7Z"/>', () => {
-        userPaused = !userPaused;
-        updateRotation();
-        syncAutoplay();
-      });
+    function revealControls(event) {
+      if (event.pointerType === 'touch') return;
+      lastPointer = {clientX: event.clientX, clientY: event.clientY};
+      if (controlBoundsDirty || !controlRect) {
+        controlRect = frame.getBoundingClientRect();
+        controlBoundsDirty = false;
+      }
+      const edge = Math.min(112, Math.max(68, controlRect.width * .12), controlRect.width / 2);
+      const inside = event.clientX >= controlRect.left && event.clientX <= controlRect.right
+        && event.clientY >= controlRect.top && event.clientY <= controlRect.bottom;
+      const side = !inside ? '' : event.clientX < controlRect.left + edge ? 'previous'
+        : event.clientX > controlRect.right - edge ? 'next' : '';
+      if (frame.dataset.activeSide !== side) frame.dataset.activeSide = side;
+    }
 
-    function updateRotation() {
-      rotation.setAttribute('aria-pressed', String(userPaused));
-      const label = motion.matches ? '已按系统设置减少动态效果 / Reduced motion enabled'
-        : userPaused ? '继续自动播放 / Resume autoplay' : '暂停自动播放 / Pause autoplay';
-      rotation.setAttribute('aria-label', label);
-      rotation.title = label;
-      rotation.disabled = motion.matches;
+    function refreshControlBounds() {
+      controlBoundsDirty = true;
+      if (lastPointer && !controlRefresh) controlRefresh = requestAnimationFrame(() => {
+        controlRefresh = 0;
+        if (lastPointer) revealControls(lastPointer);
+      });
     }
 
     frame.addEventListener('pointerenter', event => {
       if (event.pointerType === 'touch') return;
       hovering = true;
+      controlBoundsDirty = true;
+      revealControls(event);
       syncAutoplay();
     });
+    frame.addEventListener('pointermove', revealControls, {passive: true});
     frame.addEventListener('pointerleave', () => {
       hovering = false;
+      lastPointer = null;
+      frame.dataset.activeSide = '';
       wheelTotal = 0;
       syncAutoplay();
     });
@@ -202,6 +217,8 @@
     }, {passive: false});
     frame.addEventListener('pointerdown', event => {
       if (!event.isPrimary || event.pointerType === 'mouse' || event.target.closest('button')) return;
+      lastPointer = null;
+      frame.dataset.activeSide = '';
       gesture = {id: event.pointerId, x: event.clientX, y: event.clientY};
       syncAutoplay();
     });
@@ -227,8 +244,9 @@
       }
     }, true);
     doc.addEventListener('visibilitychange', syncAutoplay);
-    motion.addEventListener('change', () => { updateRotation(); syncAutoplay(); });
-    updateRotation();
+    window.addEventListener('resize', refreshControlBounds, {passive: true});
+    doc.addEventListener('scroll', refreshControlBounds, {capture: true, passive: true});
+    motion.addEventListener('change', syncAutoplay);
     syncAutoplay();
     frame.dataset.currentIndex = '0';
     track.replicaCoverCarousel = {goTo, next: () => goTo(nextIndex(1)), previous: () => goTo(nextIndex(-1)),
