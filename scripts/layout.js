@@ -10,6 +10,7 @@
     const width = document.documentElement.clientWidth;
     const height = window.innerHeight;
     const zoom = width / config.designWidth;
+    document.documentElement.style.setProperty('--replica-zoom', String(zoom));
     const scaledHeight = config.height * zoom;
     const offset = Math.max(0, (height - scaledHeight) / (2 * zoom));
     content.style.width = config.canvasWidth + 'px';

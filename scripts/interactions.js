@@ -4,6 +4,7 @@
 
   const initializedSlideshows = new WeakSet();
   const initializedAnimations = new WeakSet();
+  const hoverCanvases = new WeakMap();
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function matchingElements(root, selector) {
@@ -234,6 +235,62 @@
     };
   }
 
+  function trackHoverBounds(canvas, container, onHover, onFocus) {
+    let tracker = hoverCanvases.get(canvas);
+    if (!tracker) {
+      const entries = [];
+      let canvasRect = null;
+      let dirty = true;
+      let pointer = null;
+      let pendingFrame = 0;
+      function coordinates(x, y) {
+        if (dirty || !canvasRect) {
+          canvasRect = canvas.getBoundingClientRect();
+          dirty = false;
+        }
+        const scale = canvasRect.width / parseFloat(canvas.style.width);
+        return {x: (x - canvasRect.left) / scale, y: (y - canvasRect.top) / scale};
+      }
+      function inside(entry, point) {
+        return point.x >= entry.left && point.x <= entry.left + entry.width
+          && point.y >= entry.top && point.y <= entry.top + entry.height;
+      }
+      function checkPointer() {
+        pendingFrame = 0;
+        if (!pointer) return;
+        const point = coordinates(pointer.x, pointer.y);
+        entries.forEach(entry => entry.onHover(inside(entry, point)));
+      }
+      function schedule() {
+        if (pointer && !pendingFrame) pendingFrame = requestAnimationFrame(checkPointer);
+      }
+      function invalidate() { dirty = true; schedule(); }
+      canvas.addEventListener('pointermove', event => {
+        pointer = {x: event.clientX, y: event.clientY};
+        schedule();
+      }, {passive: true});
+      canvas.addEventListener('pointerleave', () => {
+        pointer = null;
+        entries.forEach(entry => entry.onHover(false));
+      });
+      canvas.addEventListener('focusin', event => {
+        const link = event.target.closest('a[href]');
+        const widget = link && link.querySelector('.rmwidget');
+        const rect = widget && widget.getBoundingClientRect();
+        const point = rect && coordinates(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        entries.forEach(entry => entry.onFocus(!!point && inside(entry, point)));
+      });
+      canvas.addEventListener('focusout', () => entries.forEach(entry => entry.onFocus(false)));
+      window.addEventListener('resize', invalidate, {passive: true});
+      canvas.ownerDocument.addEventListener('scroll', invalidate, {capture: true, passive: true});
+      tracker = {entries};
+      hoverCanvases.set(canvas, tracker);
+    }
+    // Hover-only masks keep fixed authored boxes; opacity does not change their hit area.
+    tracker.entries.push({left: parseFloat(container.style.left), top: parseFloat(container.style.top),
+      width: parseFloat(container.style.width), height: parseFloat(container.style.height), onHover, onFocus});
+  }
+
   function initializeHover(container, style, name, settings) {
     // Decorative text and masks must not intercept the cover's original link.
     // Linked children opt back into hit testing, including links inside text widgets.
@@ -316,30 +373,22 @@
         update();
       });
     });
-    if (!container.querySelector('a[href]')) {
+    const hasLinkedTrigger = triggers.some(trigger => trigger.matches('a[href], button, [role="button"]')
+      || trigger.querySelector('a[href], button, [role="button"]'));
+    if (!container.querySelector('a[href]') && !hasLinkedTrigger) {
       // Some exported masks have no link at all. Track their visible bounds from
       // the canvas so the mask still reacts while clicks reach the picture below.
       const canvas = container.closest('.page-content-container');
       if (canvas) {
-        const isInside = (x, y) => {
-          const rect = container.getBoundingClientRect();
-          return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-        };
-        canvas.addEventListener('pointermove', event => {
-          if (isInside(event.clientX, event.clientY)) hovered.add(canvas);
+        trackHoverBounds(canvas, container, inside => {
+          if (inside) hovered.add(canvas);
           else hovered.delete(canvas);
           update();
-        });
-        canvas.addEventListener('pointerleave', () => { hovered.delete(canvas); update(); });
-        canvas.addEventListener('focusin', event => {
-          const link = event.target.closest('a[href]');
-          const widget = link && link.querySelector('.rmwidget');
-          const rect = widget && widget.getBoundingClientRect();
-          if (rect && isInside(rect.left + rect.width / 2, rect.top + rect.height / 2)) focused.add(canvas);
+        }, inside => {
+          if (inside) focused.add(canvas);
           else focused.delete(canvas);
           update();
         });
-        canvas.addEventListener('focusout', () => { focused.delete(canvas); update(); });
       }
     }
   }
@@ -360,6 +409,10 @@
       return;
     }
     if (isCoverCarousel) {
+      if (window.initializeCoverCarousel) {
+        window.initializeCoverCarousel(container, loadSettings);
+        return;
+      }
       const updateMotion = () => {
         const duration = loadSettings && loadSettings.duration / 1000 || 7.5;
         container.style.animation = reducedMotion.matches ? 'none' : `${name} ${duration}s infinite alternate`;

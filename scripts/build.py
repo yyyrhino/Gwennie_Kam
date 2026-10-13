@@ -143,6 +143,7 @@ def build():
                     item['path'] = base + item['path']
                     item['poster'] = base + item['poster']
                 media_scripts = f'<script>window.REPLICA_MEDIA_CONFIG = {json.dumps(media)};</script>\n  <script defer src="{base}assets/vendor/hls.min.js"></script>\n  <script defer src="{base}scripts/media.js"></script>'
+            cover_script = f'\n  <script defer src="{base}scripts/cover-carousel.js"></script>' if slug == 'cover' else ''
             document = f'''<!doctype html>
 <html lang="zh-Hant" class="js isdesktop no-isphone no-istablet cssanimations csstransforms csspositionsticky new-settings mobile-screenshots page-loaded">
 <head>
@@ -157,7 +158,7 @@ def build():
   <link rel="stylesheet" href="{base}styles.css">
   <script>window.REPLICA_PAGE = {config};</script>
   <script defer src="{base}scripts/layout.js"></script>
-  <script defer src="{base}scripts/animation-config.js"></script>
+  <script defer src="{base}scripts/animation-config.js"></script>{cover_script}
   <script defer src="{base}scripts/interactions.js"></script>
   {media_scripts}
 </head>

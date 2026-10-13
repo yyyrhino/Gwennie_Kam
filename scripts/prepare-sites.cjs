@@ -23,7 +23,7 @@ for (const relative of [
   'assets/images','assets/fonts','assets/videos','assets/vendor',
   'assets/projects/longlati/collection-works.jpg','assets/projects/longlati/gwendoline-kam-portrait.png',
   'assets/fonts.css','assets/readymag-base.css',
-  'scripts/layout.js','scripts/animation-config.js','scripts/interactions.js','scripts/media.js'
+  'scripts/layout.js','scripts/animation-config.js','scripts/cover-carousel.js','scripts/interactions.js','scripts/media.js'
 ]) copy(relative);
 let count = 0, bytes = 0;
 const inspect = directory => {
